@@ -178,22 +178,22 @@ func ConvertSpecRuns(reqSpecRuns []SpecRun) []*testingDomain.SpecRun {
 		// Calculate duration
 		var duration time.Duration
 		if !reqSpec.EndTime.IsZero() && !reqSpec.StartTime.IsZero() {
-			duration = reqSpec.StartTime.Sub(reqSpec.EndTime)
+			duration = reqSpec.EndTime.Sub(reqSpec.StartTime)
 		}
 
 		// Set EndTime pointer
 		var endTime *time.Time
-		if !reqSpec.StartTime.IsZero() {
-			endTime = &reqSpec.StartTime
+		if !reqSpec.EndTime.IsZero() {
+			endTime = &reqSpec.EndTime
 		}
 
 		// Determine error/failure message based on status
 		var errorMessage, failureMessage string
 		if reqSpec.Status == "failed" || reqSpec.Status == "error" {
 			if reqSpec.Status == "error" {
-				failureMessage = reqSpec.Message
-			} else {
 				errorMessage = reqSpec.Message
+			} else {
+				failureMessage = reqSpec.Message
 			}
 		}
 
