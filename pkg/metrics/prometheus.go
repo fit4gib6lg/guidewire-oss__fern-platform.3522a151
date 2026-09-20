@@ -31,7 +31,7 @@ func PrometheusExposition(r *InMemoryRecorder) string {
 	buckets := SLOBuckets()
 
 	for _, o := range obs {
-		ck := counterKey{o.Route, o.Method, o.StatusClass}
+		ck := counterKey{o.Method, o.Route, o.StatusClass}
 		counters[ck]++
 
 		hk := histKey{o.Method, o.Route}
@@ -41,7 +41,7 @@ func PrometheusExposition(r *InMemoryRecorder) string {
 			histBuckets[hk] = map[time.Duration]int{}
 		}
 		for _, b := range buckets {
-			if o.Duration < b {
+			if o.Duration <= b {
 				histBuckets[hk][b]++
 			}
 		}
@@ -67,7 +67,7 @@ func PrometheusExposition(r *InMemoryRecorder) string {
 		fmt.Fprintf(&b, `fern_http_request_duration_seconds_bucket{method="%s",route="%s",le="+Inf"} %d`+"\n",
 			escapeLabel(k.method), escapeLabel(k.route), histCounts[k])
 		fmt.Fprintf(&b, `fern_http_request_duration_seconds_sum{method="%s",route="%s"} %s`+"\n",
-			escapeLabel(k.method), escapeLabel(k.route), formatFloat(histSums[k]/float64(histCounts[k])))
+			escapeLabel(k.method), escapeLabel(k.route), formatFloat(histSums[k]))
 		fmt.Fprintf(&b, `fern_http_request_duration_seconds_count{method="%s",route="%s"} %d`+"\n",
 			escapeLabel(k.method), escapeLabel(k.route), histCounts[k])
 	}
