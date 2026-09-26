@@ -250,6 +250,7 @@ func assembleTree(releaseValue string, epicKeys []string, epicsByKey map[string]
 		if st.Parent != nil && st.Parent.Key != "" {
 			if parent, ok := storyNodesByKey[st.Parent.Key]; ok {
 				parent.SubTasks = append(parent.SubTasks, node)
+				continue
 			}
 		}
 		unassignedSubTasks = append(unassignedSubTasks, node)
@@ -261,7 +262,7 @@ func assembleTree(releaseValue string, epicKeys []string, epicsByKey map[string]
 	for _, issue := range stories {
 		node := *storyNodesByKey[issue.Key]
 		if issue.Parent != nil && issue.Parent.Key != "" {
-			storiesByEpic[issue.Key] = append(storiesByEpic[issue.Key], node)
+			storiesByEpic[issue.Parent.Key] = append(storiesByEpic[issue.Parent.Key], node)
 		} else {
 			unassigned = append(unassigned, node)
 		}
@@ -281,7 +282,7 @@ func assembleTree(releaseValue string, epicKeys []string, epicsByKey map[string]
 			Issue:        epicIssue,
 			Stories:      epicStories,
 			CoveredCount: covered,
-			TotalCount:   covered,
+			TotalCount:   len(epicStories),
 		})
 	}
 
