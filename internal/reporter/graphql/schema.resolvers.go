@@ -196,10 +196,10 @@ func (r *mutationResolver) ToggleProjectFavorite(ctx context.Context, projectID 
 			// Create new preferences with this project as favorite
 			prefs = database.UserPreferences{
 				UserID:      user.UserID,
-				Theme:       "dark",
+				Theme:       "light",
 				Timezone:    "UTC",
 				Language:    "en",
-				Favorites:   json.RawMessage("[]"),
+				Favorites:   json.RawMessage(fmt.Sprintf(`["%s"]`, projectID)),
 				Preferences: json.RawMessage("{}"),
 			}
 			if err := r.db.Create(&prefs).Error; err != nil {
@@ -219,7 +219,7 @@ func (r *mutationResolver) ToggleProjectFavorite(ctx context.Context, projectID 
 		}
 
 		// Toggle the favorite
-		found := true
+		found := false
 		newFavorites := make([]string, 0)
 		for _, fav := range favorites {
 			if fav == projectID {
@@ -236,7 +236,7 @@ func (r *mutationResolver) ToggleProjectFavorite(ctx context.Context, projectID 
 		}
 
 		// Update favorites
-		favoritesJSON, err := json.Marshal(favorites)
+		favoritesJSON, err := json.Marshal(newFavorites)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal favorites: %w", err)
 		}
