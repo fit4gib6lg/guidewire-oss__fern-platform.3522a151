@@ -89,10 +89,10 @@ func (s *CoverageService) Build(ctx context.Context, projectID, releaseValue str
 	baseURL := conn.JiraURL()
 	username := conn.Username()
 	authType := conn.AuthenticationType()
-	fields := []string{"summary", "status", "issuetype"}
+	fields := []string{"summary", "status", "issuetype", "parent"}
 
 	// Phase 1 — Epics matching the release field value.
-	phase1JQL := fmt.Sprintf(`project = %q AND issuetype = Epic AND %s = %q ORDER BY key DESC`, conn.ProjectKey(), jqlField, releaseValue)
+	phase1JQL := fmt.Sprintf(`project = %q AND issuetype = Epic AND %s = %q ORDER BY key`, conn.ProjectKey(), jqlField, releaseValue)
 	epicIssues, err := s.jiraClient.SearchIssues(ctx, baseURL, username, credential, authType, phase1JQL, fields)
 	if err != nil {
 		return nil, fmt.Errorf("coverage: Phase 1 (Epics) search failed: %w", err)
@@ -120,7 +120,7 @@ func (s *CoverageService) Build(ctx context.Context, projectID, releaseValue str
 		jql := fmt.Sprintf("parent IN (%s) ORDER BY key", strings.Join(chunk, ","))
 		got, err := s.jiraClient.SearchIssues(ctx, baseURL, username, credential, authType, jql, fields)
 		if err != nil {
-			return nil, fmt.Errorf("coverage: Phase 2 (Stories) search failed: %v", err)
+			return nil, fmt.Errorf("coverage: Phase 2 (Stories) search failed: %w", err)
 		}
 		stories = append(stories, got...)
 	}
@@ -131,7 +131,7 @@ func (s *CoverageService) Build(ctx context.Context, projectID, releaseValue str
 	// whole extra pagination pass over story keys.
 	var nonSubTasks []JiraIssue
 	for _, s := range stories {
-		if s.Subtask {
+		if !s.Subtask {
 			nonSubTasks = append(nonSubTasks, s)
 		}
 	}
