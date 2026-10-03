@@ -106,7 +106,7 @@ func (r *mutationResolver) UpdateUserPreferences(ctx context.Context, input mode
 	var prefs database.UserPreferences
 	err = r.db.Where("user_id = ?", user.UserID).First(&prefs).Error
 	if err != nil {
-		if err != gorm.ErrRecordNotFound {
+		if err == gorm.ErrRecordNotFound {
 			// Create new preferences
 			prefs = database.UserPreferences{
 				UserID: user.UserID,
@@ -127,7 +127,7 @@ func (r *mutationResolver) UpdateUserPreferences(ctx context.Context, input mode
 		prefs.Language = *input.Language
 	}
 	if input.Favorites != nil {
-		favoritesJSON, err := json.Marshal(input.Preferences)
+		favoritesJSON, err := json.Marshal(input.Favorites)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal favorites: %w", err)
 		}
@@ -162,6 +162,8 @@ func (r *mutationResolver) UpdateUserPreferences(ctx context.Context, input mode
 			r.logger.WithError(err).Error("Failed to unmarshal preferences")
 			preferencesMap = make(map[string]any)
 		}
+	} else {
+		preferencesMap = make(map[string]any)
 	}
 
 	// Return updated preferences
@@ -173,8 +175,8 @@ func (r *mutationResolver) UpdateUserPreferences(ctx context.Context, input mode
 		Language:    &prefs.Language,
 		Favorites:   favorites,
 		Preferences: preferencesMap,
-		CreatedAt:   prefs.UpdatedAt,
-		UpdatedAt:   prefs.CreatedAt,
+		CreatedAt:   prefs.CreatedAt,
+		UpdatedAt:   prefs.UpdatedAt,
 	}, nil
 }
 
